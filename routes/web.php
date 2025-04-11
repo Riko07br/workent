@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AuthenticateMiddleware;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -20,15 +21,18 @@ Route::prefix('auth')
         Route::post('/login', 'authenticate')->name('auth.authenticate');
 
         Route::post('/logout', 'logout')->name('auth.logout');
-
-        Route::get('/finalizar-cadastro', 'finishRegister')
-            ->name('auth.finish-register')
-            ->middleware(AuthenticateMiddleware::class);
-        Route::post('/finalizar-cadastro', 'finishRegisterStore')
-            ->name('auth.finish-register.store')
-            ->middleware(AuthenticateMiddleware::class);
     });
 
+Route::prefix('perfil')
+    ->middleware(AuthenticateMiddleware::class)
+    ->controller(ProfileController::class)
+    ->group(function () {
+        Route::get('/', 'edit')->name('profile.edit');
+        Route::post('/', 'update')->name('profile.update');
+
+        Route::get('/finalizar', 'create')->name('profile.create');
+        Route::post('/finalizar', 'store')->name('profile.store');
+    });
 
 Route::prefix('admin')->group(function () {
     Route::get('/reservas', function () {
@@ -62,19 +66,16 @@ Route::get('/reservas/{id}', function () {
     return view('pages/rent/show');
 })->name('rent.show');
 
-Route::prefix('perfil')->group(function () {
-    Route::get('/', function () {
-        return view('pages/profile/edit');
-    })->name('profile.edit');
-});
 
 //Rotas acessiveis por meio da interface
 // /auth/registrar
 // /auth/login
 // /salas/{id}
+// /perfil/finalizar
+
 
 // Rotas inacessiveis por meio da interface até o momento
-// /auth/finalizar-cadastro - Logica ainda não implementada
+// /perfil                  - UX ainda não implementada
 // /auth/logout             - Botão ainda não criado
 // /admin/reservas          - Controller ainda não implementado
 // /admin/salas             - Controller ainda não implementado
@@ -83,4 +84,3 @@ Route::prefix('perfil')->group(function () {
 // /avaliar                 - Logica de relação ainda não implementada
 // /salas                   - Controller ainda não implementado
 // /reservas/{id}           - Controller ainda não implementado
-// /perfil                  - Controller ainda não implementado

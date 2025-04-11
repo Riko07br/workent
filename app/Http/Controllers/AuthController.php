@@ -37,7 +37,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect('/');
+
+            $user = User::find(Auth::id());
+            return redirect($user->client == null ? '/perfil/finalizar' : '/');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials'])->onlyInput('email');
@@ -55,15 +57,5 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect("/auth/login");
-    }
-
-    public function finishRegister()
-    {
-        return view('pages/auth/finish-register');
-    }
-
-    public function finishRegisterStore(Request $request)
-    {
-        return redirect("/");
     }
 }
